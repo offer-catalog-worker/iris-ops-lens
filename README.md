@@ -52,6 +52,8 @@ Useful official references:
 - [REST API for metrics](https://docs.intersystems.com/irislatest/csp/docbook/DocBook.UI.Page.cls/framework-api/scbi/changes/DocBook.UI.Page.cls?KEY=GCM_rest)
 - [Tasks and `%SYS.Task` APIs](https://docs.intersystems.com/irislatest/csp/docbook/DocBook.UI.Page.cls?KEY=ITECHREF_task)
 
+The product idea and the reasoning behind the read-only boundary are documented in [DESIGN.md](DESIGN.md).
+
 ## Development checks
 
 The browser client is dependency-free. Run its syntax check from the repository root:
