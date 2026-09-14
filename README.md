@@ -53,6 +53,7 @@ Useful official references:
 - [Tasks and `%SYS.Task` APIs](https://docs.intersystems.com/irislatest/csp/docbook/DocBook.UI.Page.cls?KEY=ITECHREF_task)
 
 The product idea and the reasoning behind the read-only boundary are documented in [DESIGN.md](DESIGN.md).
+The paste-ready contest application copy is in [SUBMISSION.md](SUBMISSION.md).
 
 ## Development checks
 
