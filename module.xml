@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+  <Document name="iris-ops-lens.ZPM">
+    <Module>
+      <Name>iris-ops-lens</Name>
+      <Version>0.1.0</Version>
+      <Description>Read-only operations cockpit for InterSystems IRIS management APIs</Description>
+      <Keywords>IRIS,management,monitoring,REST,OpenAPI,operations</Keywords>
+      <Packaging>module</Packaging>
+      <CSPApplication CookiePath="/csp/irisops/" DefaultTimeout="900" MatchRoles=":${dbrole}" PasswordAuthEnabled="0" Recurse="1" ServeFiles="1" ServeFilesTimeout="3600" SourcePath="/web" UnauthenticatedEnabled="1" Url="/csp/irisops" UseSessionCookie="2" />
+      <SourcesRoot>src</SourcesRoot>
+      <Resource Directory="cls" Name="IRISOps.PKG" />
+      <CSPApplication CookiePath="/rest/irisops/" DefaultTimeout="900" DispatchClass="IRISOps.REST" MatchRoles=":${dbrole}" PasswordAuthEnabled="1" Recurse="1" ServeFiles="0" ServeFilesTimeout="3600" UnauthenticatedEnabled="0" Url="/rest/irisops" UseSessionCookie="2" />
+    </Module>
+  </Document>
+</Export>
