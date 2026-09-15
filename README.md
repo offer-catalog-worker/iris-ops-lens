@@ -11,6 +11,8 @@ The app is intentionally conservative: it does not collect passwords, render sec
 - **REST service catalog** from `/api/mgmnt/`, with one-click OpenAPI inspection.
 - **Task hand-off** to the native Task Manager, preserving IRIS audit and role checks.
 - **Demo mode** when the page is opened outside IRIS, so the interface remains explorable without pretending that demo values are live.
+- **Truthful connection states** distinguish live, partial, and demo data; a failed API never gets silently replaced with sample values while the screen claims to be connected.
+- **Safe OpenAPI links** accept only same-origin IRIS management paths returned by the service catalog.
 - **Docker Compose** packaging based on the IRIS Community Edition full-stack pattern.
 
 ## Run with Docker
@@ -18,7 +20,7 @@ The app is intentionally conservative: it does not collect passwords, render sec
 Prerequisites:
 
 - Docker Desktop (or Docker Engine with Compose v2)
-- Access to the `intersystemsdc/iris-community` image
+- Access to the public `containers.intersystems.com/intersystems/iris-community:latest-em` image
 
 ```bash
 docker compose build
@@ -27,7 +29,7 @@ docker compose up -d
 
 Open <http://localhost:52773/csp/irisops/index.html>. The first start may take a minute while IRIS imports the module. Stop it with `docker compose down`.
 
-The image is configured for development. For a production deployment, keep passwords managed by IRIS and remove the development password-unexpiry line from `iris.script`.
+The installer does not change password-expiration settings or any existing user account. Apply your normal IRIS authentication, authorization, and deployment hardening before exposing an instance beyond localhost.
 
 ## API map
 
@@ -39,7 +41,7 @@ The image is configured for development. For a production deployment, keep passw
 | REST catalog | `/api/mgmnt/` | Native inventory and OpenAPI links |
 | Task Manager | `/csp/sys/op/TaskManager.csp` | Privileged scheduling stays in the native UI |
 
-The task API is documented by InterSystems as `%SYS.Task` and `%SYS.TaskSuper`; the cockpit links to the native manager instead of reimplementing privileged writes.
+The task API is documented by InterSystems as `%SYS.Task` and `%SYS.TaskSuper`; the cockpit links to the native manager instead of reimplementing privileged writes. The snapshot response contains runtime labels only and does not return the current username or role list.
 
 ## Contest notes
 
@@ -52,18 +54,19 @@ Useful official references:
 - [REST API for metrics](https://docs.intersystems.com/irislatest/csp/docbook/DocBook.UI.Page.cls/framework-api/scbi/changes/DocBook.UI.Page.cls?KEY=GCM_rest)
 - [Tasks and `%SYS.Task` APIs](https://docs.intersystems.com/irislatest/csp/docbook/DocBook.UI.Page.cls?KEY=ITECHREF_task)
 
-The product idea and the reasoning behind the read-only boundary are documented in [DESIGN.md](DESIGN.md).
+The [submitted product idea](https://ideas.intersystems.com/ideas/DPI-I-1022) and the reasoning behind the read-only boundary are documented in [DESIGN.md](DESIGN.md).
 The paste-ready contest application copy is in [SUBMISSION.md](SUBMISSION.md).
 
 ## Development checks
 
-The browser client is dependency-free. Run its syntax check from the repository root:
+The browser client is dependency-free. Run its syntax and behavior checks from the repository root:
 
 ```bash
 node --check web/js/app.js
+node --test tests/app.test.cjs
 ```
 
-IRIS class compilation and the Docker smoke test require an IRIS Community Edition runtime; the repository intentionally does not bundle a licensed runtime.
+The behavior suite covers full-live, partial, and fully offline states, malformed responses, untrusted catalog content, missing metrics, and security-flag validation. GitHub Actions runs these checks, compiles/installs the module in IRIS Community Edition, verifies that the live summary emits typed JSON booleans, and requests the installed cockpit over HTTP before publishing the demo site. `tests/smoke.ps1` runs the browser checks on Windows.
 
 ## License
 

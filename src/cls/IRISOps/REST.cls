@@ -22,14 +22,10 @@ ClassMethod Summary() As %Status
   Set result = {}
   Do result.%Set("product", $ZVERSION)
   Do result.%Set("namespace", $NAMESPACE)
-  Do result.%Set("user", $USERNAME)
-  Do result.%Set("job", $JOB)
-  Do result.%Set("roles", $ROLES)
-  Do result.%Set("horolog", $HOROLOG)
-  Do result.%Set("readOnly", 1)
+  Do result.%Set("readOnly", 1, "boolean")
   Set security = {}
-  Do security.%Set("authenticated", $S($USERNAME'="":1,0))
-  Do security.%Set("secretsExposed", 0)
+  Do security.%Set("authenticated", $S($USERNAME'="":1,1:0), "boolean")
+  Do security.%Set("secretsExposed", 0, "boolean")
   Do result.%Set("security", security)
   Write result.%ToJSON()
   Quit $$$OK

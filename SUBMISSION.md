@@ -24,7 +24,7 @@ https://offer-catalog-worker.github.io/iris-ops-lens/
 
 ## Installation
 
-1. Install Docker Desktop and make sure the `intersystemsdc/iris-community` image is available.
+1. Install Docker Desktop and make sure the `containers.intersystems.com/intersystems/iris-community:latest-em` image is available.
 2. Run `docker compose build`.
 3. Run `docker compose up -d`.
 4. Open `http://localhost:52773/csp/irisops/index.html`.

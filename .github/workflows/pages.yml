@@ -5,17 +5,52 @@ on:
     branches: [main]
   workflow_dispatch:
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
 concurrency:
   group: pages
   cancel-in-progress: true
 
 jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Check browser code and behavior
+        run: |
+          node --check web/js/app.js
+          node --test tests/app.test.cjs
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Compile, install, and smoke-test with IRIS Community Edition
+        run: docker buildx build --load --build-arg TESTS=0 --tag iris-ops-lens:ci .
+      - name: Verify the installed cockpit is served over HTTP
+        run: |
+          docker run --detach --name iris-ops-lens-smoke --publish 52773:52773 iris-ops-lens:ci --check-caps false
+          for attempt in $(seq 1 60); do
+            if curl --fail --silent http://127.0.0.1:52773/csp/irisops/index.html --output /tmp/iris-ops-lens.html; then
+              break
+            fi
+            sleep 5
+          done
+          grep -q 'Know what your IRIS instance is doing' /tmp/iris-ops-lens.html
+      - name: Show IRIS logs and remove smoke-test container
+        if: always()
+        run: |
+          docker logs iris-ops-lens-smoke || true
+          docker rm --force iris-ops-lens-smoke || true
+
   deploy:
+    needs: validate
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

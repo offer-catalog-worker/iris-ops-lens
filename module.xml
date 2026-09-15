@@ -7,7 +7,7 @@
       <Description>Read-only operations cockpit for InterSystems IRIS management APIs</Description>
       <Keywords>IRIS,management,monitoring,REST,OpenAPI,operations</Keywords>
       <Packaging>module</Packaging>
-      <CSPApplication CookiePath="/csp/irisops/" DefaultTimeout="900" MatchRoles=":${dbrole}" PasswordAuthEnabled="0" Recurse="1" ServeFiles="1" ServeFilesTimeout="3600" SourcePath="/web" UnauthenticatedEnabled="1" Url="/csp/irisops" UseSessionCookie="2" />
+      <CSPApplication CookiePath="/csp/irisops/" DefaultTimeout="900" Directory="{$cspdir}/irisops" MatchRoles=":${dbrole}" PasswordAuthEnabled="0" Path="/web" Recurse="1" ServeFiles="1" ServeFilesTimeout="3600" UnauthenticatedEnabled="1" Url="/csp/irisops" UseSessionCookie="2" />
       <SourcesRoot>src</SourcesRoot>
       <Resource Directory="cls" Name="IRISOps.PKG" />
       <CSPApplication CookiePath="/rest/irisops/" DefaultTimeout="900" DispatchClass="IRISOps.REST" MatchRoles=":${dbrole}" PasswordAuthEnabled="1" Recurse="1" ServeFiles="0" ServeFilesTimeout="3600" UnauthenticatedEnabled="0" Url="/rest/irisops" UseSessionCookie="2" />
