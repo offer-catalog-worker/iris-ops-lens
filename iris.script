@@ -1,10 +1,17 @@
 zn "%SYS"
 Do $SYSTEM.OBJ.Load("/home/irisowner/irisbuild/Installer.cls", "ck")
 Set sc = ##class(IRISOps.Installer).Setup()
-If 'sc {
-  Write $SYSTEM.Status.GetErrorText(sc), !
-  Halt 1
-}
+If 'sc Write $SYSTEM.Status.GetErrorText(sc), ! Halt 1
 zn "IRISOPS"
+Set version = "0.10.9"
+Set request = ##class(%Net.HttpRequest).%New()
+Set request.Server = "pm.community.intersystems.com"
+Set request.Https = 1
+Set request.SSLConfiguration = "ISC.FeatureTracker.SSL.Config"
+Set sc = request.Get("/packages/zpm/"_version_"/installer")
+If 'sc Write $SYSTEM.Status.GetErrorText(sc), ! Halt 1
+If request.HttpResponse.StatusCode'=200 Write "IPM installer download failed: HTTP ", request.HttpResponse.StatusCode, ! Halt 1
+Set sc = $SYSTEM.OBJ.LoadStream(request.HttpResponse.Data, "c")
+If 'sc Write $SYSTEM.Status.GetErrorText(sc), ! Halt 1
 zpm "load /home/irisowner/irisbuild/ -v"
 halt

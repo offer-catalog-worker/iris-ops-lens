@@ -107,7 +107,7 @@ function liveResponses(overrides = {}) {
 test("keeps JavaScript-to-HTML targets in sync and avoids sensitive server fields", () => {
   const referencedIds = [...source.matchAll(/\$\("([^"]+)"\)/g)].map((match) => match[1]);
   for (const id of new Set(referencedIds)) {
-  assert.match(htmlSource, new RegExp(`\\bid=["']${id}["']`), `Missing HTML element with id=${id}`);
+    assert.match(htmlSource, new RegExp(`\\bid=["']${id}["']`), `Missing HTML element with id=${id}`);
   }
   for (const id of ["rawMetricsLink", "securityPortalLink", "taskManagerLink"]) {
     assert.doesNotMatch(htmlSource.match(new RegExp(`<a\\b[^>]*id="${id}"[^>]*>`))[0], /\bhref=/i);
@@ -119,9 +119,22 @@ test("keeps JavaScript-to-HTML targets in sync and avoids sensitive server field
   assert.doesNotMatch(restSource, /Method="(?:POST|PUT|DELETE|PATCH)"/i);
   assert.doesNotMatch(restSource, /result\.%Set\("(?:user|job|roles|horolog|password|token|secret)/i);
   assert.doesNotMatch(installerScript, /UnExpireUserPasswords/i);
-  assert.match(installerScript, /If 'sc \{/);
+  assert.match(installerScript, /If 'sc Write \$SYSTEM\.Status\.GetErrorText\(sc\), ! Halt 1/);
   assert.doesNotMatch(installerScript, /\$\$\$ISERR/i);
+  assert.match(installerScript, /Set version = "0\.10\.9"/);
+  assert.match(installerScript, /Set request\.Https = 1/);
+  assert.match(installerScript, /Set sc = request\.Get\("\/packages\/zpm\//);
+  assert.match(installerScript, /\$SYSTEM\.OBJ\.LoadStream\(request\.HttpResponse\.Data, "c"\)/);
   assert.doesNotMatch(installerScript, /zpm .*":1:1/i);
+  const namespacePosition = installerScript.indexOf('zn "IRISOPS"');
+  const versionPosition = installerScript.indexOf('Set version = "0.10.9"');
+  const installIPMPosition = installerScript.indexOf('$SYSTEM.OBJ.LoadStream');
+  const loadModulePosition = installerScript.indexOf('zpm "load ');
+  assert.ok(
+    namespacePosition >= 0 && versionPosition > namespacePosition &&
+    installIPMPosition > versionPosition && loadModulePosition > installIPMPosition,
+    "IPM must be bootstrapped in the target namespace before loading the module"
+  );
   assert.match(moduleManifest, /Directory="\{\$cspdir\}\/irisops"[^>]*Path="\/web"/);
   assert.doesNotMatch(moduleManifest, /SourcePath=/i);
 });
