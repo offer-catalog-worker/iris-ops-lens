@@ -16,9 +16,9 @@ jobs:
       contents: read
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v7
         with:
           node-version: 22
       - name: Check browser code and behavior
@@ -26,7 +26,7 @@ jobs:
           node --check web/js/app.js
           node --test tests/app.test.cjs
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       - name: Compile, install, and smoke-test with IRIS Community Edition
         run: docker buildx build --load --build-arg TESTS=0 --tag iris-ops-lens:ci .
       - name: Verify the installed cockpit is served over HTTP
@@ -57,7 +57,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Configure Pages
         uses: actions/configure-pages@v5
       - name: Upload site

@@ -119,6 +119,9 @@ test("keeps JavaScript-to-HTML targets in sync and avoids sensitive server field
   assert.doesNotMatch(restSource, /Method="(?:POST|PUT|DELETE|PATCH)"/i);
   assert.doesNotMatch(restSource, /result\.%Set\("(?:user|job|roles|horolog|password|token|secret)/i);
   assert.doesNotMatch(installerScript, /UnExpireUserPasswords/i);
+  assert.match(installerScript, /If 'sc \{/);
+  assert.doesNotMatch(installerScript, /\$\$\$ISERR/i);
+  assert.doesNotMatch(installerScript, /zpm .*":1:1/i);
   assert.match(moduleManifest, /Directory="\{\$cspdir\}\/irisops"[^>]*Path="\/web"/);
   assert.doesNotMatch(moduleManifest, /SourcePath=/i);
 });

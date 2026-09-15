@@ -1,7 +1,10 @@
 zn "%SYS"
 Do $SYSTEM.OBJ.Load("/home/irisowner/irisbuild/Installer.cls", "ck")
 Set sc = ##class(IRISOps.Installer).Setup()
-If $$$ISERR(sc) Write $SYSTEM.Status.GetErrorText(sc), ! Halt 1
+If 'sc {
+  Write $SYSTEM.Status.GetErrorText(sc), !
+  Halt 1
+}
 zn "IRISOPS"
-zpm "load /home/irisowner/irisbuild/ -v":1:1
+zpm "load /home/irisowner/irisbuild/ -v"
 halt
