@@ -3,11 +3,11 @@
 The idea behind IRIS Ops Lens is simple: an operator should be able to answer four questions without opening a dozen Management Portal pages:
 
 1. **Is the instance healthy?** The summary cards and native monitor metrics answer this first.
-2. **What changed or needs attention?** The alert count and signal list keep the monitor stream visible.
-3. **Which REST surfaces exist?** The service catalog reads the native management inventory and exposes each OpenAPI contract.
-4. **Where do I make a privileged change?** The Task Manager hand-off intentionally returns to the native UI, where IRIS roles and audit behavior remain in control.
+2. **What changed or needs attention?** Monitor alerts, task history and permission-gated audit records surface operational signals.
+3. **Which administration surfaces exist?** The workspace inventories web apps, roles, users, wallets, X.509 credentials, OAuth, tasks, databases, devices and processes alongside REST/OpenAPI contracts.
+4. **What can I change here safely?** Web-app enablement and task run/suspend/resume actions require a fresh read and explicit confirmation; other privileged configuration hands off to the native UI.
 
-The cockpit is deliberately read-only. A dashboard that silently reimplements security-sensitive operations is risky; a dashboard that makes the safe next action obvious is useful. This is why the app includes a real authenticated server snapshot while leaving scheduling and security changes to IRIS.
+The cockpit is read-first, not an autonomous administrator. It sends no state-changing request on load, uses only the logged-in same-origin IRIS session, preserves IRIS permission checks, and never reads wallet values or key material. Task-definition, user, role, certificate, OAuth and device editing remain in the native portal until their schemas can be validated against a live supported IRIS instance.
 
 ## Runtime behavior
 
@@ -15,6 +15,7 @@ When hosted by IRIS at `/csp/irisops`, the browser calls same-origin native APIs
 
 ## Future extension points
 
-- Add a `%SYS.Task` read-only adapter after validating the exact Task Manager schema on the target IRIS version.
+- Add task-definition and permission editing after validating complete update schemas on a live supported IRIS instance.
+- Add create/edit flows for OAuth, X.509 and wallet metadata only after verifying the credential-field and secret-handling contracts.
 - Add namespace filtering using the existing `/api/mgmnt/v2/:namespace/` endpoint.
-- Add optional alert acknowledgement only behind an explicit, role-protected IRIS service.
+- Extend subsystem-log coverage only through documented, permission-protected IRIS APIs.

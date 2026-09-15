@@ -3,9 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="A calm, read-only operations cockpit for InterSystems IRIS management APIs.">
+  <meta name="description" content="A read-first InterSystems IRIS management cockpit with confirmed web-app and task controls.">
   <title>IRIS Ops Lens</title>
   <link rel="stylesheet" href="css/app.css">
+  <link rel="stylesheet" href="css/workspace.css">
 </head>
 <body>
   <div class="shell">
@@ -17,9 +18,9 @@
     <main>
       <section class="hero">
         <div>
-          <p class="eyebrow">OPERATIONS / READ-ONLY BY DEFAULT</p>
+          <p class="eyebrow">OPERATIONS / READ FIRST · CONFIRM BEFORE CHANGE</p>
           <h1>Know what your IRIS instance is doing.</h1>
-          <p class="lede">One focused view of health, REST surfaces, alerts and task hand-off points. No secrets are collected or displayed.</p>
+          <p class="lede">A single operator workspace for applications, access, secrets, scheduled work, processes and live system signals. Secret values stay hidden; IRIS permissions remain authoritative.</p>
         </div>
         <div class="hero-orbit" aria-hidden="true"><span></span><i></i><b></b></div>
       </section>
@@ -27,7 +28,7 @@
       <section class="metric-grid" aria-label="Server summary">
         <article class="metric-card"><span class="metric-label">INSTANCE</span><strong id="instanceValue">—</strong><small id="instanceSub">waiting for IRIS</small></article>
         <article class="metric-card"><span class="metric-label">CPU LOAD</span><strong id="cpuValue">—</strong><small id="cpuSub">waiting for monitor metrics</small></article>
-        <article class="metric-card"><span class="metric-label">ACTIVE JOBS</span><strong id="jobsValue">—</strong><small id="jobsSub">waiting for monitor metrics</small></article>
+        <article class="metric-card"><span class="metric-label">PHYSICAL MEMORY USED</span><strong id="memoryValue">—</strong><small id="memorySub">waiting for monitor metrics</small></article>
         <article class="metric-card"><span class="metric-label">ALERTS</span><strong id="alertsValue">—</strong><small id="alertSub">monitor service</small></article>
       </section>
 
@@ -49,8 +50,8 @@
 
         <article class="panel">
           <div class="panel-heading"><div><p class="eyebrow">SAFETY</p><h2>Access boundary</h2></div><span class="shield">✓</span></div>
-          <div id="securityBox" class="security-box"><span class="security-icon">◉</span><div><strong>Read-only cockpit</strong><p>No write actions are exposed by this app.</p></div></div>
-          <ul class="checks"><li>Secrets never rendered</li><li>Uses the logged-in IRIS session when hosted in IRIS</li><li>Native permissions remain authoritative</li></ul>
+          <div id="securityBox" class="security-box"><span class="security-icon">◉</span><div><strong>Guardrailed admin controls</strong><p>State changes are explicit, confirmation-gated, and use the current IRIS session.</p></div></div>
+          <ul class="checks"><li>Secret values never requested or rendered</li><li>No administrative change is sent during page load</li><li>Native IRIS permissions and audit remain authoritative</li></ul>
           <a id="securityPortalLink" class="text-link" aria-disabled="true" target="_blank" rel="noopener noreferrer">IRIS only · security portal</a>
         </article>
 
@@ -60,9 +61,112 @@
           <div class="task-strip"><div class="task-icon">◷</div><div><strong>Schedule, pause or run a task</strong><p>Use the built-in page to preserve auditability and role checks.</p></div><a id="taskManagerLink" class="button" aria-disabled="true" target="_blank" rel="noopener noreferrer">IRIS only · Task Manager</a></div>
         </article>
       </section>
+
+      <section class="workspace" aria-labelledby="workspaceTitle">
+        <div class="workspace-heading">
+          <div><p class="eyebrow">MANAGEMENT WORKSPACE</p><h2 id="workspaceTitle">Explore the instance by operator task</h2></div>
+          <span id="adminStatus" class="source-badge source-pending" aria-live="polite">CONNECTING</span>
+        </div>
+        <div class="tabbar" id="managementTabs" role="tablist" aria-label="Management areas">
+          <button class="tab-button is-active" id="tab-apps" type="button" role="tab" aria-selected="true" aria-controls="view-apps" data-view="view-apps">Apps & REST</button>
+          <button class="tab-button" id="tab-security" type="button" role="tab" aria-selected="false" aria-controls="view-security" data-view="view-security">Permissions & secrets</button>
+          <button class="tab-button" id="tab-tasks" type="button" role="tab" aria-selected="false" aria-controls="view-tasks" data-view="view-tasks">Tasks</button>
+          <button class="tab-button" id="tab-system" type="button" role="tab" aria-selected="false" aria-controls="view-system" data-view="view-system">System & processes</button>
+          <button class="tab-button" id="tab-events" type="button" role="tab" aria-selected="false" aria-controls="view-events" data-view="view-events">Alerts & logs</button>
+        </div>
+
+        <section class="workspace-view is-active" id="view-apps" role="tabpanel" aria-labelledby="tab-apps">
+          <article class="panel">
+            <div class="panel-heading"><div><p class="eyebrow">WEB APPLICATIONS</p><h3>Deployed entry points</h3></div><span id="webAppsCount" class="count">—</span></div>
+            <p class="panel-copy">Inventory from the IRIS SysAdmin API. Enable/disable controls fetch the current definition, change only its enabled flag, and require explicit confirmation.</p>
+            <p id="appActionStatus" class="panel-copy" role="status" aria-live="polite"></p>
+            <div id="webAppsTable" class="data-table"><div class="empty">Waiting for the web-application inventory.</div></div>
+          </article>
+        </section>
+
+        <section class="workspace-view" id="view-security" role="tabpanel" aria-labelledby="tab-security" hidden>
+          <div class="workspace-grid">
+            <article class="panel">
+              <div class="panel-heading"><div><p class="eyebrow">AUTHORIZATION</p><h3>Roles</h3></div><span id="rolesCount" class="count">—</span></div>
+              <div id="rolesTable" class="data-table"><div class="empty">Waiting for role inventory.</div></div>
+            </article>
+            <article class="panel">
+              <div class="panel-heading"><div><p class="eyebrow">IDENTITIES</p><h3>Users</h3></div><span id="usersCount" class="count">—</span></div>
+              <div id="usersTable" class="data-table"><div class="empty">Waiting for user inventory.</div></div>
+            </article>
+            <article class="panel panel-span">
+              <div class="panel-heading"><div><p class="eyebrow">CREDENTIAL METADATA</p><h3>Wallet collections</h3></div><span class="shield">✓</span></div>
+              <p class="panel-copy">Only secret names and implementation types are shown; values are never requested or rendered.</p>
+              <label class="field-label" for="walletCollection">Collection</label>
+              <select id="walletCollection" class="select-control"><option value="">Waiting for collections…</option></select>
+              <div id="secretsTable" class="data-table"><div class="empty">Waiting for wallet metadata.</div></div>
+            </article>
+            <article class="panel">
+              <div class="panel-heading"><div><p class="eyebrow">CERTIFICATES</p><h3>X.509 credentials</h3></div><span id="x509Count" class="count">—</span></div>
+              <p class="panel-copy">Credential aliases and access scope only. Private keys and certificate contents are never fetched.</p>
+              <div id="x509Table" class="data-table"><div class="empty">Waiting for X.509 credential inventory.</div></div>
+            </article>
+            <article class="panel">
+              <div class="panel-heading"><div><p class="eyebrow">FEDERATED ACCESS</p><h3>OAuth configuration</h3></div><span id="oauthCount" class="count">—</span></div>
+              <p class="panel-copy">Authorization-server and registered-client metadata; secrets and token values stay out of this view.</p>
+              <div id="oauthTable" class="data-table"><div class="empty">Waiting for OAuth configuration.</div></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="workspace-view" id="view-tasks" role="tabpanel" aria-labelledby="tab-tasks" hidden>
+          <article class="panel">
+            <div class="panel-heading"><div><p class="eyebrow">SCHEDULER</p><h3>Task Manager</h3></div><span id="taskManagerStatus" class="source-badge source-pending">CONNECTING</span></div>
+            <p class="panel-copy">Review schedules and history here. Run, suspend, and resume use the permission-checked IRIS APIs and always require an explicit confirmation; task definitions and other privileged edits stay in the native Task Manager.</p>
+            <div class="table-actions"><a id="nativeTaskLink" class="button button-quiet text-link" aria-disabled="true" target="_blank" rel="noopener noreferrer">Open native Task Manager</a><span id="tasksCount" class="count">—</span></div>
+            <p id="taskActionStatus" class="panel-copy" role="status" aria-live="polite"></p>
+            <div id="tasksTable" class="data-table"><div class="empty">Waiting for scheduled tasks.</div></div>
+            <h4 class="subsection-title">Next scheduled runs</h4>
+            <div id="upcomingTable" class="data-table"><div class="empty">Waiting for upcoming runs.</div></div>
+            <h4 class="subsection-title">Task execution history</h4>
+            <div id="taskHistoryTable" class="data-table"><div class="empty">Waiting for task history.</div></div>
+          </article>
+        </section>
+
+        <section class="workspace-view" id="view-system" role="tabpanel" aria-labelledby="tab-system" hidden>
+          <div class="workspace-grid">
+            <article class="panel panel-span">
+              <div class="panel-heading"><div><p class="eyebrow">SYSTEM HEALTH</p><h3>Instance status & resources</h3></div><span id="systemCount" class="count">—</span></div>
+              <div id="systemSummary" class="summary-grid"><div class="empty">Waiting for system dashboard.</div></div>
+              <div id="resourcesTable" class="data-table"><div class="empty">Waiting for resource statistics.</div></div>
+            </article>
+            <article class="panel">
+              <div class="panel-heading"><div><p class="eyebrow">STORAGE</p><h3>Database directories</h3></div><span id="databasesCount" class="count">—</span></div>
+              <div id="databasesTable" class="data-table"><div class="empty">Waiting for database inventory.</div></div>
+            </article>
+            <article class="panel">
+              <div class="panel-heading"><div><p class="eyebrow">DEVICES</p><h3>Configured I/O</h3></div><span id="devicesCount" class="count">—</span></div>
+              <div id="devicesTable" class="data-table"><div class="empty">Waiting for device inventory.</div></div>
+            </article>
+            <article class="panel panel-span">
+              <div class="panel-heading"><div><p class="eyebrow">ACTIVE WORK</p><h3>Processes</h3></div><span id="processCount" class="count">—</span></div>
+              <p class="panel-copy">Process inspection is permission-gated by IRIS; destructive controls remain in the native portal.</p>
+              <div id="processesTable" class="data-table"><div class="empty">Waiting for process inventory.</div></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="workspace-view" id="view-events" role="tabpanel" aria-labelledby="tab-events" hidden>
+          <article class="panel">
+            <div class="panel-heading"><div><p class="eyebrow">SYSTEM MONITOR</p><h3>Recent alerts</h3></div><span id="alertsLogCount" class="count">—</span></div>
+            <p class="panel-copy">IRIS exposes new alerts from <code>alerts.log</code> through its monitor API. The full messages and System Monitor logs remain available in the Management Portal.</p>
+            <div id="alertsTable" class="data-table"><div class="empty">Waiting for alerts.</div></div>
+            <h4 class="subsection-title">Security audit records</h4>
+            <p class="panel-copy">Audit metadata is requested through the permission-gated asynchronous SysAdmin API. Event payloads and user-info fields are intentionally omitted.</p>
+            <div id="auditTable" class="data-table"><div class="empty">Waiting for audit records.</div></div>
+            <div class="portal-links"><a id="nativeLogsLink" class="text-link" aria-disabled="true" target="_blank" rel="noopener noreferrer">Open native system logs</a><a id="nativeSecurityLink" class="text-link" aria-disabled="true" target="_blank" rel="noopener noreferrer">Open native security portal</a></div>
+          </article>
+        </section>
+      </section>
     </main>
     <footer><span>IRIS Ops Lens · community edition friendly</span><span id="updatedAt">Not refreshed yet</span></footer>
   </div>
   <script src="js/app.js"></script>
+  <script src="js/management.js"></script>
 </body>
 </html>

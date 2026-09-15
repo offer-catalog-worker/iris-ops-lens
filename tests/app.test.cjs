@@ -11,7 +11,7 @@ const installerScript = fs.readFileSync(path.join(__dirname, "..", "iris.script"
 const moduleManifest = fs.readFileSync(path.join(__dirname, "..", "module.xml"), "utf8");
 const ids = [
   "modePill", "refreshBtn", "notice", "instanceValue", "instanceSub", "cpuValue", "cpuSub",
-  "jobsValue", "jobsSub", "alertsValue", "alertSub", "securityBox", "signalList",
+  "memoryValue", "memorySub", "alertsValue", "alertSub", "securityBox", "signalList",
   "metricsStatus", "metricsSource", "restCount", "restSource", "restList", "updatedAt",
   "rawMetricsLink", "securityPortalLink", "taskManagerLink"
 ];
@@ -94,7 +94,7 @@ function liveResponses(overrides = {}) {
       namespace: "USER",
       security: { authenticated: true, secretsExposed: false }
     },
-    "/api/monitor/metrics": "# HELP iris_cpu_percent CPU\niris_cpu_percent 23.25\niris_jobs 0\niris_global_refs 1234 1726351234\n",
+    "/api/monitor/metrics": "# HELP iris_cpu_usage CPU\niris_cpu_usage 23.25\niris_phys_mem_percent_used 67.6\n",
     "/api/monitor/alerts": { alerts: [] },
     "/api/mgmnt/": { services: [{
       name: "%Api.Mgmnt.v2", namespace: "%SYS", webApplications: "/api/mgmnt",
@@ -144,7 +144,7 @@ test("shows live data without substituting sample values", async () => {
   assert.equal(elements.modePill.textContent, "LIVE DATA");
   assert.equal(elements.instanceValue.textContent, "USER");
   assert.equal(elements.cpuValue.textContent, "23.3%");
-  assert.equal(elements.jobsValue.textContent, "0");
+  assert.equal(elements.memoryValue.textContent, "67.6%");
   assert.equal(elements.alertsValue.textContent, "0");
   assert.equal(elements.metricsStatus.textContent, "LIVE");
   assert.equal(elements.taskManagerLink.href, "/csp/sys/op/TaskManager.csp");
@@ -166,7 +166,7 @@ test("marks partial connections and never fills failed sources with demo values"
   assert.equal(elements.modePill.textContent, "PARTIAL DATA");
   assert.equal(elements.instanceValue.textContent, "Unavailable");
   assert.equal(elements.cpuValue.textContent, "23.3%");
-  assert.equal(elements.jobsValue.textContent, "0");
+  assert.equal(elements.memoryValue.textContent, "67.6%");
   assert.equal(elements.alertsValue.textContent, "—");
   assert.equal(elements.restCount.textContent, "1 service");
   assert.match(elements.notice.textContent, /not replaced with sample data/);
@@ -184,7 +184,7 @@ test("uses clearly labelled demo data only when no endpoint responds", async () 
   assert.equal(elements.modePill.textContent, "DEMO DATA");
   assert.equal(elements.instanceValue.textContent, "IRISOPS");
   assert.equal(elements.cpuValue.textContent, "21%");
-  assert.equal(elements.jobsValue.textContent, "6");
+  assert.equal(elements.memoryValue.textContent, "67%");
   assert.equal(elements.alertsValue.textContent, "0");
   assert.equal(elements.metricsStatus.textContent, "DEMO");
   assert.match(elements.notice.textContent, /Sample data is shown for exploration only/);
@@ -261,6 +261,6 @@ test("renders missing metrics as unavailable instead of fabricated zeroes", asyn
   }));
   assert.equal(elements.modePill.textContent, "LIVE DATA");
   assert.equal(elements.cpuValue.textContent, "—");
-  assert.equal(elements.jobsValue.textContent, "—");
+  assert.equal(elements.memoryValue.textContent, "—");
   assert.match(elements.cpuSub.textContent, /Not exposed by this IRIS version/);
 });

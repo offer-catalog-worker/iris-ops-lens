@@ -8,11 +8,11 @@ IRIS Ops Lens
 
 ## One-line description
 
-A read-only operations cockpit that unifies IRIS health signals, monitor alerts, REST service discovery and a safe Task Manager hand-off.
+A read-first management cockpit for IRIS health, REST surfaces, access and credential metadata, scheduled work, storage, devices, processes and logs, with confirmed controls for web-app availability and task actions.
 
 ## Detailed description
 
-IRIS Ops Lens answers an operator's first five questions in one screen: is the instance healthy, what needs attention, which REST surfaces are deployed, how can an OpenAPI contract be inspected, and where should a privileged task change be made? It reads the native `/api/monitor/metrics`, `/api/monitor/alerts` and `/api/mgmnt/` APIs, then adds a minimal authenticated `/rest/irisops/summary` endpoint for runtime labels. Scheduling remains in the native Task Manager so IRIS roles and audit behavior stay authoritative. The UI has an explicit demo mode for static hosting and never presents demo values as live telemetry.
+IRIS Ops Lens brings native monitor signals and the SysAdmin inventory APIs into a focused management workspace: web applications and REST/OpenAPI, roles and users, wallet metadata, X.509 and OAuth inventories, tasks and history, system resources, databases, devices, processes, monitor alerts and asynchronous audit records. Operators can enable/disable a web application or run/suspend/resume a scheduled task; each action requires explicit confirmation and is authorized and audited by IRIS. Secret values and audit payload fields are deliberately omitted. Other privileged configuration remains in the native portal until its full write contract has been validated against a live supported IRIS instance. The static demo uses labelled sample data and sends no administrative requests.
 
 ## Repository
 
@@ -31,8 +31,8 @@ https://offer-catalog-worker.github.io/iris-ops-lens/
 
 ## Judging highlights
 
-- **Complexity:** combines three native IRIS management services with a CSP/REST module and graceful fallback behavior.
+- **Complexity:** combines native monitor, management and SysAdmin APIs, including asynchronous audit export, with a CSP/REST module and explicit operational controls.
 - **Clarity:** no dependency-heavy build step; the README, design note and API map explain the full path.
 - **Developer experience:** one compose command, direct OpenAPI links and readable failure states.
 - **Applicability:** useful on Community Edition and suitable as a low-risk starting point for production operators.
-- **Usability:** focused cards, alert visibility, responsive layout and a deliberate read-only boundary.
+- **Usability:** focused work areas, responsive tables, truthful permission/error states and confirmation-gated controls.

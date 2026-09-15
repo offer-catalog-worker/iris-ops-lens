@@ -33,7 +33,7 @@
     { name: "%Api.Monitor", namespace: "%SYS", webApplications: "/api/monitor", swaggerSpec: "/api/monitor" },
     { name: "IRISOps.REST", namespace: "IRISOPS", webApplications: "/rest/irisops", swaggerSpec: "/rest/irisops" }
   ];
-  const demoMetrics = { iris_cpu_percent: 21, iris_jobs: 6, iris_global_refs: 1842 };
+  const demoMetrics = { iris_cpu_usage: 21, iris_phys_mem_percent_used: 67 };
 
   function isRecord(value) {
     return value !== null && typeof value === "object" && !Array.isArray(value);
@@ -167,16 +167,16 @@
     $("instanceValue").textContent = summary ? summary.namespace : (demo ? demoSummary.namespace : "Unavailable");
     $("instanceSub").textContent = summary ? summary.product : (demo ? "Sample only · not live" : "Server snapshot unavailable");
 
-    const cpu = pickMetric(["iris_cpu_percent", "iris_system_cpu_percent", "system_cpu_percent", "cpu_percent"]);
-    const jobs = pickMetric(["iris_jobs", "iris_processes", "process_count", "iris_process_count"]);
+    const cpu = pickMetric(["iris_cpu_usage"]);
+    const memory = pickMetric(["iris_phys_mem_percent_used"]);
     $("cpuValue").textContent = formatNumber(cpu, cpu === null ? "" : "%");
-    $("jobsValue").textContent = formatNumber(jobs);
+    $("memoryValue").textContent = formatNumber(memory, memory === null ? "" : "%");
     const metricsReachable = state.sources.metrics && state.sources.metrics.status === "ok";
     const metricCopy = (value) => demo
       ? "Sample only · not live"
       : (!metricsReachable ? "Monitor metrics unavailable" : (value === null ? "Not exposed by this IRIS version" : "From IRIS monitor API"));
     $("cpuSub").textContent = metricCopy(cpu);
-    $("jobsSub").textContent = metricCopy(jobs);
+    $("memorySub").textContent = metricCopy(memory);
 
     const alertsAvailable = state.alerts !== null;
     $("alertsValue").textContent = alertsAvailable ? formatNumber(state.alerts.length) : "—";
@@ -204,9 +204,8 @@
     const demo = state.mode === "demo";
     const metricsReachable = state.sources.metrics && state.sources.metrics.status === "ok";
     const signals = [
-      ["CPU utilization", pickMetric(["iris_cpu_percent", "iris_system_cpu_percent", "system_cpu_percent", "cpu_percent"]), "%"],
-      ["Process count", pickMetric(["iris_jobs", "iris_processes", "process_count", "iris_process_count"]), ""],
-      ["Global references", pickMetric(["iris_global_refs", "global_refs", "iris_global_references"]), ""]
+      ["CPU utilization", pickMetric(["iris_cpu_usage"]), "%"],
+      ["Physical memory used", pickMetric(["iris_phys_mem_percent_used"]), "%"]
     ];
     if (demo) state.metrics = demoMetrics;
     $("signalList").innerHTML = signals.map(([label, value, suffix]) => {
@@ -221,9 +220,17 @@
   }
 
   function pickDemoMetric(label) {
-    if (label === "CPU utilization") return demoMetrics.iris_cpu_percent;
-    if (label === "Process count") return demoMetrics.iris_jobs;
-    return demoMetrics.iris_global_refs;
+    return label === "CPU utilization"
+      ? demoMetrics.iris_cpu_usage
+      : demoMetrics.iris_phys_mem_percent_used;
+  }
+
+  function publishWorkspaceState() {
+    const detail = { mode: state.mode, alerts: state.alerts };
+    window.__IRIS_OPS_STATE__ = detail;
+    if (typeof window.dispatchEvent === "function" && typeof CustomEvent === "function") {
+      window.dispatchEvent(new CustomEvent("irisops:update", { detail }));
+    }
   }
 
   function safeSpecPath(candidate) {
@@ -333,6 +340,7 @@
         state.mode = Object.values(state.sources).every((source) => source.status === "ok") ? "live" : "partial";
       }
 
+      publishWorkspaceState();
       setModePill();
       setNativeLinks(state.mode !== "demo");
       if (state.mode === "demo") {
@@ -356,6 +364,7 @@
         summary: { status: "unavailable" }, metrics: { status: "unavailable" },
         alerts: { status: "unavailable" }, rest: { status: "unavailable" }
       };
+      publishWorkspaceState();
       setModePill();
       setNativeLinks(false);
       setNotice("The dashboard could not finish loading. No sample values were substituted for an incomplete response.");
